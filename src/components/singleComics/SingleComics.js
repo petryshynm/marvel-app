@@ -1,7 +1,7 @@
-import './singleComic.scss';
+import './singleComics.scss';
 import xMen from '../../resources/img/x-men.png';
 
-const SingleComic = () => {
+const SingleComics = () => {
     return (
         <div className="single-comic">
             <img src={xMen} alt="x-men" className="single-comic__img"/>
@@ -17,4 +17,4 @@ const SingleComic = () => {
     )
 }
 
-export default SingleComic;
+export default SingleComics;

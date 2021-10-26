@@ -1,47 +1,28 @@
 import './randomChar.scss';
-// import thor from '../../resources/img/thor.jpeg';
 import mjolnir from '../../resources/img/mjolnir.png';
 import React, {useState, useEffect} from 'react';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
+import { Loader } from '../loader/loader';
+
 const RandomChar = () => {
-    const m = new MarvelService();
+    const {loading, getCharacter} = useMarvelService();
     const randId = Math.floor(Math.random()*(1011400-1011000)+1011000);
-    const [charData, setChar] = useState({});
+    const [charData, setChar] = useState(null);
     const [charId, setId] = useState(randId);
-    const [loading, setLoading] = useState(true);
 
     useEffect(()=>{
-        setLoading(true)
-        m.getCharacter(charId)
+        getCharacter(charId)
             .then(char =>{
                 setChar(char);
-                setLoading(false);
+            })
+            .catch(()=>{
+                setId(randId)
             })
     }, [charId])
 
     return (
         <div className="randomchar">
-            <div className="randomchar__block">
-                {loading ? <div>Loading</div> : 
-                    <>
-                        <img src={charData.thumbnail} alt="Random character" className="randomchar__img"/>
-                        <div className="randomchar__info">
-                            <p className="randomchar__name">{charData.name}</p>
-                            <p className="randomchar__descr">
-                                {charData.description}
-                            </p>
-                            <div className="randomchar__btns">
-                                <a href={charData.homepage} className="button button__main">
-                                    <div className="inner">homepage</div>
-                                </a>
-                                <a href={charData.wiki} className="button button__secondary">
-                                    <div className="inner">Wiki</div>
-                                </a>
-                            </div>
-                        </div>
-                    </>
-                }
-            </div>
+            {!charData || loading  ? <Loader/> : <View charData={charData}/>}
             <div className="randomchar__static">
                 <p className="randomchar__title">
                     Random character for today!<br/>
@@ -54,6 +35,33 @@ const RandomChar = () => {
                     <div className="inner">try it</div>
                 </button>
                 <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
+            </div>
+        </div>
+    )
+}
+
+const View = ({charData}) => {
+    const {thumbnail, name, description, wiki, homepage} = charData;
+    let imgStyle = {'objectFit' : 'cover'};
+    if (thumbnail.endsWith('image_not_available.jpg')) {
+        imgStyle = {'objectFit' : 'fill'};
+    }
+    return (
+        <div className="randomchar__block"> 
+            <img src={thumbnail} alt="Random character" className="randomchar__img" style={imgStyle}/>
+            <div className="randomchar__info">
+                <p className="randomchar__name">{name}</p>
+                <p className="randomchar__descr">
+                    {description}
+                </p>
+                <div className="randomchar__btns">
+                    <a href={homepage} className="button button__main">
+                        <div className="inner">homepage</div>
+                    </a>
+                    <a href={wiki} className="button button__secondary">
+                        <div className="inner">Wiki</div>
+                    </a>
+                </div>
             </div>
         </div>
     )

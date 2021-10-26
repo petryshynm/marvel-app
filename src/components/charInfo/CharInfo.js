@@ -1,59 +1,62 @@
 import './charInfo.scss';
-import thor from '../../resources/img/thor.jpeg';
+import { useState, useEffect} from 'react';
+import { Loader } from '../loader/loader';
+import useMarvelService from '../../services/MarvelService';
+import Skeleton from '../skeleton/Skeleton';
 
-const CharInfo = () => {
-    return (
-        <div className="char__info">
-            <div className="char__basics">
-                <img src={thor} alt="abyss"/>
-                <div>
-                    <div className="char__info-name">thor</div>
-                    <div className="char__btns">
-                        <a href="#" className="button button__main">
-                            <div className="inner">homepage</div>
-                        </a>
-                        <a href="#" className="button button__secondary">
-                            <div className="inner">Wiki</div>
-                        </a>
+const CharInfo = ({charInfoId}) => {
+    const {loading,  getCharacter} = useMarvelService();
+    const [charInfo, setCharInfo] = useState(null);
+
+
+    useEffect(()=>{
+        if(charInfoId){
+            getCharacter(charInfoId)
+                .then((data)=>{
+                    setCharInfo(data)
+                })
+        }
+    }, [charInfoId])
+
+    const renderInfo = () => {
+        const {thumbnail, name, homepage, wiki, description,comics} = charInfo;
+        let imgStyle = {'objectFit' : 'cover'};
+        if (thumbnail.endsWith('image_not_available.jpg')) imgStyle = {'objectFit' : 'fill'};
+        return (
+            <>
+                <div className="char__basics">
+                    <img src={thumbnail} style={imgStyle} alt="abyss"/>
+                    <div>
+                        <div className="char__info-name">{name}</div>
+                        <div className="char__btns">
+                            <a href={homepage} className="button button__main">
+                                <div className="inner">homepage</div>
+                            </a>
+                            <a href={wiki} className="button button__secondary">
+                                <div className="inner">Wiki</div>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div className="char__descr">
-                In Norse mythology, Loki is a god or jötunn (or both). Loki is the son of Fárbauti and Laufey, and the brother of Helblindi and Býleistr. By the jötunn Angrboða, Loki is the father of Hel, the wolf Fenrir, and the world serpent Jörmungandr. By Sigyn, Loki is the father of Nari and/or Narfi and with the stallion Svaðilfari as the father, Loki gave birth—in the form of a mare—to the eight-legged horse Sleipnir. In addition, Loki is referred to as the father of Váli in the Prose Edda.
-            </div>
-            <div className="char__comics">Comics:</div>
-            <ul className="char__comics-list">
-                <li className="char__comics-item">
-                    All-Winners Squad: Band of Heroes (2011) #3
-                </li>
-                <li className="char__comics-item">
-                    Alpha Flight (1983) #50
-                </li>
-                <li className="char__comics-item">
-                    Amazing Spider-Man (1999) #503
-                </li>
-                <li className="char__comics-item">
-                    Amazing Spider-Man (1999) #504
-                </li>
-                <li className="char__comics-item">
-                    AMAZING SPIDER-MAN VOL. 7: BOOK OF EZEKIEL TPB (Trade Paperback)
-                </li>
-                <li className="char__comics-item">
-                    Amazing-Spider-Man: Worldwide Vol. 8 (Trade Paperback)
-                </li>
-                <li className="char__comics-item">
-                    Asgardians Of The Galaxy Vol. 2: War Of The Realms (Trade Paperback)
-                </li>
-                <li className="char__comics-item">
-                    Vengeance (2011) #4
-                </li>
-                <li className="char__comics-item">
-                    Avengers (1963) #1
-                </li>
-                <li className="char__comics-item">
-                    Avengers (1996) #1
-                </li>
-            </ul>
+                <div className="char__descr">
+                    {description}    
+                </div>
+                {comics.length ? <div className="char__comics">Comics:</div> : null}  
+                <ul className="char__comics-list">
+                    {comics.map((item,i)=><li key={i} className="char__comics-item">{item.name}</li>)}
+                </ul>
+            </>
+        )
+    }
+    const loader = loading ? <Loader/> : null;
+    const skeleton = !(charInfo || loading) ? <Skeleton/> : null;
+    const char = !loading && !skeleton ? renderInfo() : null;
+
+    return (
+        <div className="char__info">
+            {skeleton}
+            {loader}
+            {char}
         </div>
     )
 }
