@@ -3,6 +3,7 @@ import './comicsList.scss';
 import useMarvelService from '../../services/MarvelService';
 import { useEffect, useState, useRef} from 'react/cjs/react.development';
 import { Loader } from '../loader/loader';
+import { Link } from 'react-router-dom';
 
 const ComicsList = ({setComicsId}) => {
     const {loading,  getAllComics} = useMarvelService();
@@ -24,8 +25,6 @@ const ComicsList = ({setComicsId}) => {
         initial ? setNewItemLoading(false) : setNewItemLoading(true);
         getAllComics(offset)
             .then(onComicsListLoaded)
-
-
     }
 
     useEffect(()=>{
@@ -38,25 +37,15 @@ const ComicsList = ({setComicsId}) => {
             let imgStyle = {'objectFit' : 'cover'};
             if (thumbnail.endsWith('image_not_available.jpg')) imgStyle = {'objectFit' : 'contain'};
             return (
-                <a href="#">
+                <Link to={`/comics/${id}`}>
                     <li 
                         className="comics__item" 
-                        key={id}
-                        onClick={(e)=>{
-                            setComicsId(i)
-                            // focusOnItem(i)
-                        }} 
-                        onKeyPress={(e)=>{
-                            if(e.key==' ' || e.key == 'Enter'){
-                                setComicsId(i)
-                                // focusOnItem(i)
-                            }
-                        }}>
+                        key={id}>
                         <img src={thumbnail} style={imgStyle} alt={title} className="comics__item-img"/>
                         <div className="comics__item-name">{title}</div>
                         <div className="comics__item-price">{price}</div>
                     </li>
-                </a>
+                </Link>
             )
         })
 
